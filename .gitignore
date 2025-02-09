@@ -1,1 +1,8 @@
 .env
+Documentation
+Documentation/*
+
+config.py
+
+# test
+test-command.ipynb
