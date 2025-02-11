@@ -6,3 +6,5 @@ config.py
 
 # test
 test-command.ipynb
+.template.py
+TODO.md

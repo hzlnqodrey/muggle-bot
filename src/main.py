@@ -1,10 +1,15 @@
-from typing import Final
 import os
+import asyncio
+from typing import Final
 from dotenv import load_dotenv
 from discord import Intents, Client, Message
+from discord.ext import commands
 
-# Dir
-from response import get_response
+
+# Dir, Import & Register Commands
+from utils.response import get_response
+from utils.commands import setup
+
 
 # Load Env Variables
 load_dotenv()
@@ -15,7 +20,12 @@ TOKEN: Final[str] = os.getenv("DISCORD_TOKEN")
 # Bot Setup
 intents: Intents = Intents.default()
 intents.message_content = True
+
+# Create a Discord Client (For Normal Messages)
 client: Client = Client(intents=intents)
+
+# Create a Discord Bot (For Slash Commands)
+bot = commands.Bot(command_prefix="!", intents=intents)
 
 # Message Functionally
 async def send_messages(message: Message, user_messages: str) -> None:
@@ -51,9 +61,29 @@ async def on_message(message: Message) -> None:
     print(f'({channel_name}) {username}: {user_message}')
     await send_messages(message, user_message)
 
+# Handle Startup for Bot & Register Commands
+@bot.event
+async def on_ready():
+    print(f'Bot Connected: {bot.user}')
+
+    # Sync Slash Commands
+    try:
+        synced_commands = await bot.tree.sync()
+        print(f"Synced {len(synced_commands)} command(s).")
+    except Exception as e:
+        print(f"Error syncing commands: {e}")
+
+async def load_extensions():
+    await setup(bot) # Load MathCommands
+
 # Main | Entry Point
-def main() -> None:
-    client.run(TOKEN)
+async def main() -> None:
+    await load_extensions()
+
+    task1 = asyncio.create_task(client.start(TOKEN))
+    task2 = asyncio.create_task(bot.start(TOKEN))
+
+    await asyncio.gather(task1, task2)
 
 if __name__ == '__main__':
-    main()
+    asyncio.run(main())
