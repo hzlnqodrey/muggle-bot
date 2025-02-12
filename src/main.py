@@ -46,7 +46,7 @@ async def send_messages(message: Message, user_messages: str) -> None:
 # Handle STARTUP for the bot
 @client.event
 async def on_ready() -> None:
-    print(f'Logged in as {client.user} and has connected to Discord - [is running!]')
+    print(f'Client logged in as {client.user} and has connected to Discord - [is running!]')
 
 # Handle Incomming Message for the bot
 @client.event
@@ -73,6 +73,7 @@ async def on_ready():
     except Exception as e:
         print(f"Error syncing commands: {e}")
 
+# Load commands.py module
 async def load_extensions():
     await setup(bot) # Load MathCommands
 
@@ -80,10 +81,10 @@ async def load_extensions():
 async def main() -> None:
     await load_extensions()
 
-    task1 = asyncio.create_task(client.start(TOKEN))
-    task2 = asyncio.create_task(bot.start(TOKEN))
+    client_start = asyncio.create_task(client.start(TOKEN))
+    bot_start = asyncio.create_task(bot.start(TOKEN))
 
-    await asyncio.gather(task1, task2)
+    await asyncio.gather(client_start, bot_start)
 
 if __name__ == '__main__':
     asyncio.run(main())
